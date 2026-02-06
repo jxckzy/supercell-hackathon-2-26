@@ -1,0 +1,58 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #e8e8e8;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* TEXT WINDOW */
+#output {
+  width: 70%;
+  height: 200px;
+  background: #6b4f2a;
+  color: white;
+  border: 2px solid black;
+  overflow-y: auto;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+/* CHOICE BUTTONS */
+.choices {
+  position: absolute;
+  right: 15%;
+  bottom: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+button {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+/* CONTROLS */
+.controls {
+  width: 70%;
+  background: #ddd;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid #aaa;
+}
+
+textarea {
+  width: 100%;
+  resize: none;
+}
+
+.npc-buttons {
+  display: flex;
+  gap: 10px;
+}

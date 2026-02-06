@@ -3,22 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <title>AI Prototype</title>
+  <link rel="stylesheet" href="index.css" />
 </head>
+
 <body>
 
   <h2>AI Test</h2>
 
-  <textarea id="input" rows="4" cols="50"></textarea><br><br>
-  <button id="sendToMorgan">Send to Morgan</button>
-  <button id="sendToLola">Send to Lola</button>
-  <button id="clear">Очистить память</button>
+  <!-- Choice buttons -->
+  <div class="choices">
+    <button>Choice 1</button>
+    <button>Choice 2</button>
+    <button>Choice 3</button>
+  </div>
 
+  <!-- Text window -->
   <pre id="output"></pre>
 
-  <!-- ВАЖНО: подключаем JS в конце -->
-  <script src="script.js">
-    
-  </script>
+  <!-- Controls -->
+  <div class="controls">
+    <textarea id="input" rows="3"></textarea>
+
+    <div class="npc-buttons">
+      <button id="sendToMorgan">Send to Morgan</button>
+      <button id="sendToLola">Send to Lola</button>
+      <button id="clear">Очистить память</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
-
