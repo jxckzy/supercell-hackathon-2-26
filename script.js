@@ -13,6 +13,12 @@ const npc02 = {
 };
 
 
+document.getElementById("clear").onclick = () => {
+  npc01.memory = [];
+  npc02.memory = [];
+  document.getElementById("output").textContent = "";
+};
+
 document.getElementById("sendToLola").onclick = () => {
   const text = document.getElementById("input").value;
 
@@ -34,6 +40,7 @@ document.getElementById("sendToLola").onclick = () => {
   JSON.stringify(npc02.memory, null, 2);
 };
 
+
 document.getElementById("sendToMorgan").onclick = () => {
   const text = document.getElementById("input").value;
 
@@ -54,3 +61,10 @@ document.getElementById("sendToMorgan").onclick = () => {
   document.getElementById("output").textContent =
   JSON.stringify(npc01.memory, null, 2);
 };
+
+document.getElementById("clear").onclick = () => {
+  npc01.memory = [];
+  npc02.memory = [];
+  document.getElementById("output").textContent = "";
+};
+
