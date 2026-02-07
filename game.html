@@ -9,16 +9,43 @@
 <body>
   <div class="game-wrapper">
     <h1 class="game-title">Sheriff – Phaser demo</h1>
-    <p class="game-hint">WASD to move · Click an NPC to talk</p>
+    <p class="game-hint">WASD move · Click NPC to talk · <kbd>N</kbd> Notebook</p>
     <div id="game-container">
-      <div class="peek-container">
-        <div class="peek-label">Press "B" to make a note</div>
-        <div class="peek-object"></div>
+      <!-- Dialog popup (inside game container so it overlays canvas) -->
+      <div id="dialog-overlay" class="overlay" hidden>
+        <div class="dialog-card">
+          <div class="dialog-header">
+            <span id="dialog-npc-name">—</span>
+            <button type="button" class="btn-close" id="dialog-close" aria-label="Close">×</button>
+          </div>
+          <div class="dialog-log" id="dialog-log"></div>
+          <div class="dialog-reply" id="dialog-reply"></div>
+          <div class="choices">
+            <button type="button" class="choice-btn" data-choice="0">Where were you last night?</button>
+            <button type="button" class="choice-btn" data-choice="1">Did you see anything suspicious?</button>
+            <button type="button" class="choice-btn" data-choice="2">Do you know the other guests?</button>
+          </div>
+          <div class="dialog-actions">
+            <button type="button" class="btn-save-note" id="save-to-notebook">Save last reply to notebook</button>
+            <button type="button" class="btn-close-dialog" id="dialog-close-btn">Close</button>
+          </div>
+        </div>
+      </div>
+      <!-- Notebook popup -->
+      <div id="notebook-overlay" class="overlay" hidden>
+        <div class="notebook-card">
+          <div class="notebook-header">
+            <span>Notebook</span>
+            <button type="button" class="btn-close" id="notebook-close" aria-label="Close">×</button>
+          </div>
+          <ul id="notebook-list" class="notebook-list"></ul>
+          <button type="button" class="btn-close-dialog" id="notebook-close-btn">Close</button>
+        </div>
       </div>
     </div>
+    <button type="button" class="btn-notebook-fab" id="open-notebook-fab" title="Open notebook (N)">📓</button>
   </div>
 
-  <!-- Phaser 3 from CDN -->
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
   <script src="game.js"></script>
 </body>

@@ -46,6 +46,8 @@ class TalkRequest(BaseModel):
     npc: NPCInfo
     history: list[Message]
     player_message: str
+    npc_type: Literal["killer", "villain"] | None = None  # killer = hide clues; villain = truth or lie
+    other_npc_names: list[str] | None = None  # names of other NPCs (for clues/lying)
 
 
 class TalkResponse(BaseModel):
@@ -57,13 +59,27 @@ class TalkResponse(BaseModel):
 AI_PROVIDER = os.environ.get("AI_PROVIDER", "gemini").lower()
 
 
-def build_system_prompt(npc: NPCInfo) -> str:
-    return (
+def build_system_prompt(npc: NPCInfo, npc_type: str | None = None, other_npc_names: list[str] | None = None) -> str:
+    base = (
         f"You are {npc.name}, {npc.role}. "
         f"Personality: {npc.personality}. "
-        "You are being questioned by the sheriff. Reply in character, briefly and naturally. "
-        "Keep replies short (1-3 sentences) unless the question demands more."
+        "The sheriff is questioning you. Reply in character, briefly (1-3 sentences). "
     )
+    if npc_type == "killer":
+        base += (
+            "You are the KILLER. Hide that. Deflect, give vague answers, or lie. "
+            "Do not admit anything. Do not give real clues about yourself or others. "
+        )
+    elif npc_type == "villain":
+        others = ", ".join(other_npc_names) if other_npc_names else "others"
+        base += (
+            f"You are NOT the killer but you might know something. Other people here: {others}. "
+            "You may tell TRUE clues about others or LIE. After a few exchanges (3-4) you might drop one clue or stay evasive. "
+            "Keep replies short and in character. "
+        )
+    else:
+        base += "Reply naturally and briefly. "
+    return base
 
 
 def format_messages(history: list[Message], player_message: str, system_prompt: str):
@@ -261,7 +277,11 @@ def call_openai(messages: list) -> str:
 
 @app.post("/talk", response_model=TalkResponse)
 def talk(req: TalkRequest) -> TalkResponse:
-    system_prompt = build_system_prompt(req.npc)
+    system_prompt = build_system_prompt(
+        req.npc,
+        npc_type=req.npc_type,
+        other_npc_names=req.other_npc_names,
+    )
     messages = format_messages(req.history, req.player_message, system_prompt)
     
     if AI_PROVIDER == "gemini":
