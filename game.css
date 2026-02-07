@@ -35,12 +35,65 @@ body {
 }
 
 #game-container {
+  position: relative;
+  width: 800px;       
+  height: 500px;
   border: 2px solid #333;
-  border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+
+  
+  background-image: url('images/walls.png'); /* путь к твоей картинке */
+  background-size: cover;                  /* подгоняет картинку под контейнер */
+  background-position: center center;      /* центрирует изображение */
+  background-repeat: no-repeat;
 }
 
 #game-container canvas {
   display: block;
+}
+
+.peek-container {
+  position: absolute;
+  bottom: -56px;
+  right: 16px;
+  height: 80px;
+  z-index: 10;
+}
+
+.peek-object {
+  width: 256px;
+  height: 32px;
+  background: rgba(0, 0, 0);
+  cursor: pointer;
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.peek-label {
+  position: absolute;
+  bottom: 115%;
+  right: 0;
+  transform: translateY(8px);
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.peek-container:hover .peek-object {
+  transform: translateY(-8px); /* чуть приподнимается */
+  box-shadow:
+    0 0 0 2px #ffffff,         /* белая обводка */
+    0 0 16px rgba(255, 255, 255, 0.6); /* мягкое свечение */
+}
+
+.peek-container:hover .peek-label {
+  opacity: 1;
+  transform: translateY(0);
 }
