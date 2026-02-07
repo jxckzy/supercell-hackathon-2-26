@@ -41,12 +41,6 @@ body {
   border: 2px solid #333;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-
-  
-  background-image: url('images/walls.png'); /* путь к твоей картинке */
-  background-size: cover;                  /* подгоняет картинку под контейнер */
-  background-position: center center;      /* центрирует изображение */
-  background-repeat: no-repeat;
 }
 
 #game-container canvas {

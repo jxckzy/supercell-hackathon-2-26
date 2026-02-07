@@ -24,8 +24,13 @@
   var cursors;
   var npcs = [];
   var npcData = [
-    { name: 'Morgan', role: 'security guard', x: 200, y: 250, color: 0x4a90a4 },
-    { name: 'Lola', role: 'hotel guest no.1', x: 550, y: 250, color: 0xa45a8a }
+    { name: 'Morgan', role: 'security guard', x: 200, y: 250, sprite: 'MorganS' },
+    { name: 'Lola', role: 'stripper', x: 550, y: 250, sprite: 'LolaS' },
+    { name: 'John', role: 'visitor no.1', x: 550, y: 150, sprite: 'JohnS' },
+    { name: 'Chris', role: 'visitor no.2', x: 200, y: 150, sprite: 'ChrisS' },
+    { name: 'Sebastian', role: 'bartender', x: 200, y: 350, sprite: 'SebastianS' },
+    { name: 'Anna', role: 'visitor no.3', x: 550, y: 350, sprite: 'AnnaS' },
+    { name: '???', role: 'courpse', x: 400, y: 250, sprite: 'courpseS' }
   ];
 
   function preload() {
@@ -41,41 +46,64 @@
     this.load.image('hero_sw', 'images/hero/south-west.png');
     this.load.image('hero_w', 'images/hero/west.png');
     this.load.image('hero_nw', 'images/hero/north-west.png');
+
+    this.load.image('MorganS', 'images/Morgan/south.png');
+    this.load.image('AnnaS', 'images/Anna/south.png');
+    this.load.image('courpseS', 'images/courpse/east.png');
+    this.load.image('JohnS', 'images/John/south.png');
+    this.load.image('LizaS', 'images/Liza/south.png');
+    this.load.image('LolaS', 'images/Lola/south.png');
+    this.load.image('SebastianS', 'images/Sebastian/south.png');
+    this.load.image('ChrisS', 'images/Chris/south.png');
   }
 
   function create() {
     //world
-    var zone = { x: 50, y: 40, width: 700, height: 425 };
+    var zone = { x: 15, y: 10, width: 770, height: 450 };
     this.physics.world.setBounds(zone.x, zone.y, zone.width, zone.height);
     this.add.image(400, 250, 'bg').setOrigin(0.5, 0.5).setDepth(-2);
     this.add.image(400, 250, 'floor').setOrigin(0.5, 0.5).setDepth(-1);
 
     // Player (Sheriff) – blue rectangle
-    player = this.add.sprite(56, 56, 'hero_s') // по умолчанию смотрит на юг
-          .setScale(2);
+    player = this.add.sprite(56, 56, 'hero_s'); // по умолчанию смотрит на юг
     this.physics.add.existing(player, false);
     player.body.setCollideWorldBounds(true);
 
     // NPCs – circles with labels
     npcData.forEach(function (data) {
-      var g = this.add.graphics();
-      g.fillStyle(data.color, 1);
-      g.fillCircle(0, 0, 28);
       var npc = this.add.container(data.x, data.y);
-      npc.add(g);
-      var label = this.add.text(0, 42, data.name, {
-        fontSize: '14px',
-        color: '#fff'
-      }).setOrigin(0.5, 0);
+
+      // Спрайт NPC
+      var npcSprite = this.add.sprite(0, 0, data.sprite)
+      npc.add(npcSprite);
+
+      // Имя NPC
+      var label = this.add.text(
+        0,
+        npcSprite.displayHeight-170,
+        data.name,
+        { fontSize: '14px', color: '#fff' }
+      ).setOrigin(0.5, 0);
+
       npc.add(label);
+
+      // Данные NPC
       npc.setDataEnabled();
-      npc.setData({ name: data.name, role: data.role });
-      npc.setInteractive(new Phaser.Geom.Circle(0, 0, 32), Phaser.Geom.Circle.Contains);
+      npc.setData({
+        name: data.name,
+        role: data.role
+      });
+
+      // Кликабельность по размеру спрайта
+      npc.setSize(npcSprite.displayWidth, npcSprite.displayHeight);
+      npc.setInteractive();
+
       npc.on('pointerdown', function () {
         console.log('Talk to', this.getData('name'));
-        this.scene.scene.events.emit('npc_clicked', this.getData('name'));
+        this.scene.events.emit('npc_clicked', this.getData('name'));
       });
-      npcs.push(npc);
+
+        npcs.push(npc);
     }, this);
 
     // Keyboard
