@@ -214,16 +214,13 @@
     var player;
     var npcs = [];
     var npcData = [
-        {name: 'Morgan', role: 'security guard', personality: 'calm, evasive', x: 180, y: 220, color: 0x4a90a4},
-        {
-            name: 'Lola',
-            role: 'hotel guest no.1',
-            personality: 'confident, slightly cocky',
-            x: 400,
-            y: 120,
-            color: 0xa45a8a
-        },
-        {name: 'Vince', role: 'bartender', personality: 'quiet, observant', x: 600, y: 280, color: 0x8a7a4a}
+        {name: 'Morgan', role: 'security guard', x: 200, y: 250, sprite: 'MorganS'},
+        {name: 'Lola', role: 'stripper', x: 550, y: 250, sprite: 'LolaS'},
+        {name: 'John', role: 'visitor no.1', x: 550, y: 150, sprite: 'JohnS'},
+        {name: 'Chris', role: 'visitor no.2', x: 200, y: 150, sprite: 'ChrisS'},
+        {name: 'Sebastian', role: 'bartender', x: 200, y: 350, sprite: 'SebastianS'},
+        {name: 'Anna', role: 'visitor no.3', x: 550, y: 350, sprite: 'AnnaS'},
+        {name: '???', role: 'courpse', x: 400, y: 250, sprite: 'courpseS'}
     ];
 
     var killerIndex = 0;
@@ -239,17 +236,25 @@
         this.load.image('hero_sw', 'images/hero/south-west.png');
         this.load.image('hero_w', 'images/hero/west.png');
         this.load.image('hero_nw', 'images/hero/north-west.png');
+        this.load.image('MorganS', 'images/Morgan/south.png');
+        this.load.image('AnnaS', 'images/Anna/south.png');
+        this.load.image('courpseS', 'images/courpse/east.png');
+        this.load.image('JohnS', 'images/John/south.png');
+        this.load.image('LizaS', 'images/Liza/south.png');
+        this.load.image('LolaS', 'images/Lola/south.png');
+        this.load.image('SebastianS', 'images/Sebastian/south.png');
+        this.load.image('ChrisS', 'images/Chris/south.png');
     }
 
     function create() {
         killerIndex = Math.floor(Math.random() * 3);
 
-        var zone = {x: 50, y: 40, width: 700, height: 425};
+        var zone = {x: 15, y: 10, width: 770, height: 450};
         this.physics.world.setBounds(zone.x, zone.y, zone.width, zone.height);
         this.add.image(400, 250, 'bg').setOrigin(0.5, 0.5).setDepth(-2);
         this.add.image(400, 250, 'floor').setOrigin(0.5, 0.5).setDepth(-1);
 
-        player = this.add.sprite(56, 56, 'hero_s').setScale(2);
+        player = this.add.sprite(56, 56, 'hero_s');
         this.physics.add.existing(player, false);
         player.body.setCollideWorldBounds(true);
 
