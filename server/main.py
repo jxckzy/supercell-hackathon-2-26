@@ -73,9 +73,11 @@ def build_system_prompt(npc: NPCInfo, npc_type: str | None = None, other_npc_nam
     elif npc_type == "villain":
         others = ", ".join(other_npc_names) if other_npc_names else "others"
         base += (
-            f"You are NOT the killer but you might know something. Other people here: {others}. "
-            "You may tell TRUE clues about others or LIE. After a few exchanges (3-4) you might drop one clue or stay evasive. "
-            "Keep replies short and in character. "
+            f"You are NOT the killer but you know things about the others. Other people here: {others}. "
+            "When asked where you were, what you saw, or who you know, give REAL clues that mention other people BY NAME. "
+            "Examples: 'I saw [Name] near the bar', 'I was with [Name] for a bit', '[Name] was acting nervous'. "
+            "Your clues must be TRUE so the sheriff can piece together who did it. After 2–3 questions, drop at least one concrete clue that names someone. "
+            "Keep replies short (1–3 sentences) and in character. "
         )
     else:
         base += "Reply naturally and briefly. "

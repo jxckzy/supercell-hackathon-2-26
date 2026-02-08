@@ -45,7 +45,20 @@
         if (!dialogOverlay) return;
         dialogNpcName.textContent = npcInfo.name;
         dialogLog.textContent = '';
-        dialogReply.textContent = 'Ask something using the choices below.';
+        var isCorpse = npcInfo.npcType === 'corpse';
+        if (isCorpse) {
+            dialogReply.textContent = 'The victim. No answers here.';
+            setChoiceButtonsEnabled(true);
+            if (document.getElementById('accuse-btn')) document.getElementById('accuse-btn').hidden = true;
+            if (document.querySelector('.dialog-choices-wrap')) document.querySelector('.dialog-choices-wrap').hidden = true;
+            if (document.getElementById('save-to-notebook')) document.getElementById('save-to-notebook').hidden = true;
+        } else {
+            dialogReply.textContent = 'Ask something using the choices below.';
+            setChoiceButtonsEnabled(false);
+            if (document.getElementById('accuse-btn')) document.getElementById('accuse-btn').hidden = false;
+            if (document.querySelector('.dialog-choices-wrap')) document.querySelector('.dialog-choices-wrap').hidden = false;
+            if (document.getElementById('save-to-notebook')) document.getElementById('save-to-notebook').hidden = false;
+        }
         var history = npcHistories[npcInfo.name] || [];
         npcHistories[npcInfo.name] = history;
         dialogOverlay.hidden = false;
@@ -58,7 +71,8 @@
 
     function otherNpcNames() {
         if (!currentDialogNpc) return [];
-        var all = ['Morgan', 'Lola', 'Vince'];
+        var all = [];
+        for (var i = 0; i < INTERROGATABLE_COUNT; i++) all.push(npcData[i].name);
         return all.filter(function (n) {
             return n !== currentDialogNpc.name;
         });
@@ -81,7 +95,7 @@
     }
 
     function sendChoice(choiceIndex) {
-        if (!currentDialogNpc || choiceIndex < 0 || choiceIndex >= CHOICES.length) return;
+        if (!currentDialogNpc || currentDialogNpc.npcType === 'corpse' || choiceIndex < 0 || choiceIndex >= CHOICES.length) return;
         var playerMessage = CHOICES[choiceIndex];
         setChoiceButtonsEnabled(true);
         dialogReply.textContent = '...';
@@ -147,6 +161,44 @@
         if (notebookOverlay) notebookOverlay.hidden = true;
     }
 
+    function clearLastNote() {
+        if (notebook.length === 0) return;
+        notebook.pop();
+        saveNotebookToStorage();
+        renderNotebookList();
+    }
+
+    function clearNotebookOnReset() {
+        notebook = [];
+        saveNotebookToStorage();
+        if (notebookList) renderNotebookList();
+    }
+
+    function endGame(won) {
+        closeDialog();
+        closeNotebook();
+        var overlay = document.getElementById('game-end-overlay');
+        var titleEl = document.getElementById('game-end-title');
+        if (overlay && titleEl) {
+            titleEl.textContent = won ? 'You found the killer! Victory!' : 'Wrong accusation. The killer got away.';
+            overlay.hidden = false;
+        }
+    }
+
+    function playAgain() {
+        clearNotebookOnReset();
+        var overlay = document.getElementById('game-end-overlay');
+        if (overlay) overlay.hidden = true;
+        window.location.reload();
+    }
+
+    function accuseCurrent() {
+        if (!currentDialogNpc || currentDialogNpc.npcType === 'corpse') return;
+        var isKiller = window.__killerName && currentDialogNpc.name === window.__killerName;
+        closeDialog();
+        endGame(isKiller);
+    }
+
     function renderNotebookList() {
         if (!notebookList) return;
         notebookList.innerHTML = '';
@@ -175,9 +227,15 @@
         document.getElementById('dialog-close').addEventListener('click', closeDialog);
         document.getElementById('dialog-close-btn').addEventListener('click', closeDialog);
         document.getElementById('save-to-notebook').addEventListener('click', saveToNotebook);
+        var accuseBtn = document.getElementById('accuse-btn');
+        if (accuseBtn) accuseBtn.addEventListener('click', accuseCurrent);
         document.getElementById('notebook-close').addEventListener('click', closeNotebook);
         document.getElementById('notebook-close-btn').addEventListener('click', closeNotebook);
+        var clearLastBtn = document.getElementById('clear-last-note');
+        if (clearLastBtn) clearLastBtn.addEventListener('click', clearLastNote);
         document.getElementById('open-notebook-fab').addEventListener('click', openNotebook);
+        var playAgainBtn = document.getElementById('play-again-btn');
+        if (playAgainBtn) playAgainBtn.addEventListener('click', playAgain);
 
         choiceBtns.forEach(function (btn, i) {
             btn.addEventListener('click', function () {
@@ -224,6 +282,8 @@
     ];
 
     var killerIndex = 0;
+    var INTERROGATABLE_COUNT = 6; // Morgan, Lola, John, Chris, Sebastian, Anna (exclude corpse)
+    var SPEAK_RANGE = 85; // distance to show "E to speak" and allow E to open dialog
 
     function preload() {
         this.load.image('bg', 'images/walls.png');
@@ -247,7 +307,8 @@
     }
 
     function create() {
-        killerIndex = Math.floor(Math.random() * 3);
+        killerIndex = Math.floor(Math.random() * INTERROGATABLE_COUNT);
+        window.__killerName = npcData[killerIndex].name;
 
         var zone = {x: 15, y: 10, width: 770, height: 450};
         this.physics.world.setBounds(zone.x, zone.y, zone.width, zone.height);
@@ -260,12 +321,15 @@
 
         var self = this;
         npcData.forEach(function (data, i) {
-            var npcType = i === killerIndex ? 'killer' : 'villain';
+            var npcType = i === 6 ? 'corpse' : (i === killerIndex ? 'killer' : 'villain');
 
-            var circle = self.add.circle(data.x, data.y, 28, data.color);
+            // Visible character sprite
+            var spriteImg = self.add.image(data.x, data.y, data.sprite);
+            spriteImg.setDepth(0);
 
             var npc = self.add.zone(data.x, data.y, 60, 60);
             self.physics.add.existing(npc);
+            npc.setDepth(1);
 
             npc.setDataEnabled();
             npc.setData('name', data.name);
@@ -273,12 +337,13 @@
             npc.setData('personality', data.personality);
             npc.setData('npcType', npcType);
 
-
             npc.setInteractive();
 
             npc.on('pointerdown', function () {
-                console.log("clicked", this.getData('name'));
-
+                if (this.getData('npcType') === 'corpse') {
+                    window.openDialog({ name: this.getData('name'), role: this.getData('role'), personality: '—', npcType: 'corpse' });
+                    return;
+                }
                 window.openDialog({
                     name: this.getData('name'),
                     role: this.getData('role'),
@@ -287,15 +352,39 @@
                 });
             });
 
+            var nameText = self.add.text(data.x, data.y + 40, data.name, {
+                fontSize: '16px',
+                color: '#ffffff'
+            }).setOrigin(0.5).setDepth(2);
+            nameText.setStroke('#000', 3);
 
-            self.add.text(data.x, data.y + 40, data.name, {
-                fontSize: '14px',
-                color: '#fff'
-            }).setOrigin(0.5);
+            var promptText = self.add.text(data.x, data.y + 56, 'E to speak with ' + data.name, {
+                fontSize: '15px',
+                color: '#e0f4ff'
+            }).setOrigin(0.5).setDepth(3).setVisible(false);
+            promptText.setStroke('#0a1628', 4);
+            npc.setData('speakPrompt', promptText);
 
             npcs.push(npc);
         });
 
+        this.nearbyNpc = null;
+        var eKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+        eKey.on('down', function () {
+            if (self.nearbyNpc) {
+                var n = self.nearbyNpc;
+                if (n.getData('npcType') === 'corpse') {
+                    window.openDialog({ name: n.getData('name'), role: n.getData('role'), personality: '—', npcType: 'corpse' });
+                } else {
+                    window.openDialog({
+                        name: n.getData('name'),
+                        role: n.getData('role'),
+                        personality: n.getData('personality'),
+                        npcType: n.getData('npcType')
+                    });
+                }
+            }
+        });
 
         var w = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
         var a = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
@@ -305,6 +394,24 @@
     }
 
     function update() {
+        var px = player.x;
+        var py = player.y;
+        var closest = null;
+        var closestDist = SPEAK_RANGE + 1;
+        for (var i = 0; i < npcs.length; i++) {
+            var npc = npcs[i];
+            var dist = Phaser.Math.Distance.Between(px, py, npc.x, npc.y);
+            if (dist <= SPEAK_RANGE && dist < closestDist) {
+                closestDist = dist;
+                closest = npc;
+            }
+        }
+        this.nearbyNpc = closest;
+        for (var j = 0; j < npcs.length; j++) {
+            var p = npcs[j].getData('speakPrompt');
+            if (p) p.setVisible(npcs[j] === this.nearbyNpc);
+        }
+
         var speed = 180;
         var body = player.body;
         body.setVelocity(0);

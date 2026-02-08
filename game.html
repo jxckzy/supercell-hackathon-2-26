@@ -9,7 +9,7 @@
 <body>
   <div class="game-wrapper">
     <h1 class="game-title">Sheriff – Phaser demo</h1>
-    <p class="game-hint">WASD move · Click NPC to talk · <kbd>N</kbd> Notebook</p>
+    <p class="game-hint">WASD move · Near NPC: <kbd>E</kbd> to speak · <kbd>N</kbd> Notebook · Accuse when you know the killer</p>
     <div id="game-container">
       <!-- Dialog popup (inside game container so it overlays canvas) -->
       <div id="dialog-overlay" class="overlay" hidden>
@@ -20,12 +20,13 @@
           </div>
           <div class="dialog-log" id="dialog-log"></div>
           <div class="dialog-reply" id="dialog-reply"></div>
-          <div class="choices">
+          <div class="dialog-choices-wrap choices">
             <button type="button" class="choice-btn" data-choice="0">Where were you last night?</button>
             <button type="button" class="choice-btn" data-choice="1">Did you see anything suspicious?</button>
             <button type="button" class="choice-btn" data-choice="2">Do you know the other guests?</button>
           </div>
           <div class="dialog-actions">
+            <button type="button" class="btn-accuse" id="accuse-btn">Accuse this person of being the killer</button>
             <button type="button" class="btn-save-note" id="save-to-notebook">Save last reply to notebook</button>
             <button type="button" class="btn-close-dialog" id="dialog-close-btn">Close</button>
           </div>
@@ -39,7 +40,17 @@
             <button type="button" class="btn-close" id="notebook-close" aria-label="Close">×</button>
           </div>
           <ul id="notebook-list" class="notebook-list"></ul>
-          <button type="button" class="btn-close-dialog" id="notebook-close-btn">Close</button>
+          <div class="notebook-actions">
+            <button type="button" class="btn-clear-last" id="clear-last-note">Clear last note</button>
+            <button type="button" class="btn-close-dialog" id="notebook-close-btn">Close</button>
+          </div>
+        </div>
+      </div>
+      <!-- Game end (win/lose) -->
+      <div id="game-end-overlay" class="overlay game-end-overlay" hidden>
+        <div class="game-end-card">
+          <h2 id="game-end-title">—</h2>
+          <button type="button" class="btn-play-again" id="play-again-btn">Play again</button>
         </div>
       </div>
     </div>
