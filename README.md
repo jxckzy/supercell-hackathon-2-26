@@ -192,6 +192,7 @@ The focus is on **interactive storytelling powered by AI**.
 Hackathon project:
 - Illia Voitsekhovskyi
 - Ruslan Matetski
+
 Students of Metropolia UAS
 
 ---
